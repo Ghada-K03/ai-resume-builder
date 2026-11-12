@@ -1,0 +1,255 @@
+.cv-editor-main {
+  min-width: 0;
+}
+
+.cv-editor-header {
+  margin-bottom: 26px;
+}
+
+.cv-editor-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  border: 0;
+  background: transparent;
+  color: #7135c5;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cv-editor-header h1 {
+  margin: 0 0 8px;
+  color: #241747;
+  font-size: 30px;
+}
+
+.cv-editor-header p {
+  color: #81779b;
+}
+
+.cv-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cv-editor-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 11px;
+  background: #7135c5;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cv-editor-actions button:last-child {
+  background: #241747;
+}
+
+.cv-saved-message {
+  color: #24834b !important;
+  font-weight: 600;
+}
+
+.cv-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.cv-editor-form,
+.cv-preview-panel {
+  min-width: 0;
+  padding: 25px;
+  border: 1px solid #eee8f5;
+  border-radius: 20px;
+  background: white;
+}
+
+.cv-editor-form h2 {
+  margin: 0 0 24px;
+  color: #241747;
+  font-size: 21px;
+}
+
+.cv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.cv-field span {
+  color: #241747;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cv-field input,
+.cv-field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 15px;
+  border: 1px solid #e7e0f0;
+  border-radius: 11px;
+  outline: none;
+  background: #ffffff;
+  color: #241747;
+  font: inherit;
+  font-size: 13px;
+}
+
+.cv-field input:focus,
+.cv-field textarea:focus {
+  border-color: #7135c5;
+}
+
+.cv-field textarea {
+  resize: vertical;
+}
+
+.cv-preview-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #7135c5;
+  font-weight: 700;
+}
+
+.cv-paper {
+  min-height: 560px;
+  padding: 30px;
+  border: 1px solid #e7e0f0;
+  background: #ffffff;
+  color: #241747;
+  overflow-wrap: anywhere;
+}
+
+.cv-paper-header {
+  padding-bottom: 20px;
+  border-bottom: 2px solid #7135c5;
+}
+
+.cv-paper-header h2 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+
+.cv-paper-header h3 {
+  margin: 0 0 10px;
+  color: #7135c5;
+  font-size: 15px;
+}
+
+.cv-paper-header p {
+  font-size: 11px;
+  color: #81779b;
+}
+
+.cv-paper-section {
+  margin-top: 25px;
+}
+
+.cv-paper-section h4 {
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e7e0f0;
+  color: #7135c5;
+  font-size: 14px;
+}
+
+.cv-paper-section p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  font-size: 12px;
+}
+
+.cv-paper-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.cv-paper-skills span {
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: #f2eaff;
+  color: #7135c5;
+  font-size: 11px;
+}
+
+@media (max-width: 1000px) {
+  .cv-editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .cv-editor-form,
+  .cv-preview-panel {
+    padding: 16px;
+  }
+
+  .cv-paper {
+    padding: 20px;
+  }
+}
+
+/* Print only the resume */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  .cv-editor-sidebar,
+  .cv-editor-header,
+  .cv-editor-form,
+  .cv-preview-label {
+    display: none !important;
+  }
+
+  .cv-editor-layout,
+  .cv-editor-main,
+  .cv-editor-grid,
+  .cv-preview-panel {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  .cv-paper {
+    min-height: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .cv-paper-section {
+    break-inside: avoid;
+  }
+
+  .cv-paper-header,
+  .cv-paper-section h4 {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

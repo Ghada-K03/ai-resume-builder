@@ -1,0 +1,244 @@
+.create-cv-header {
+  margin-bottom: 28px;
+}
+
+.create-cv-header > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #7135c5;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.create-cv-heading span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #7135c5;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.create-cv-heading h1 {
+  margin: 0 0 10px;
+  color: #241747;
+  font-size: clamp(28px, 4vw, 38px);
+}
+
+.create-cv-heading p {
+  margin: 0;
+  color: #81779b;
+  font-size: 14px;
+}
+
+.create-cv-panel {
+  padding: 36px;
+  border: 1px solid #eee8f5;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 10px 35px rgba(36, 23, 71, 0.04);
+}
+
+.cv-start-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.cv-option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 270px;
+  padding: 30px 24px;
+  border: 2px solid #eee8f5;
+  border-radius: 20px;
+  background: #ffffff;
+  text-align: center;
+  font: inherit;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.cv-option-card:hover,
+.cv-option-card:focus-visible {
+  border-color: #7135c5;
+  background: #faf7ff;
+  transform: translateY(-3px);
+}
+
+.cv-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 74px;
+  height: 74px;
+  margin-bottom: 22px;
+  border-radius: 20px;
+  background: #f2eaff;
+  color: #7135c5;
+}
+
+.cv-option-card h3 {
+  margin: 0 0 12px;
+  color: #241747;
+  font-size: 19px;
+}
+
+.cv-option-card p {
+  max-width: 260px;
+  margin: 0;
+  color: #81779b;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.cv-upload-section {
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.cv-upload-section h2 {
+  margin: 0 0 10px;
+  color: #241747;
+  font-size: 25px;
+}
+
+.cv-upload-section > p {
+  color: #81779b;
+  font-size: 14px;
+}
+
+.cv-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  margin-top: 28px;
+  padding: 45px 20px;
+  border: 2px dashed #d8c4ef;
+  border-radius: 20px;
+  background: #faf7ff;
+  color: #7135c5;
+  transition: 0.2s ease;
+}
+
+.cv-dropzone.dragging {
+  border-color: #7135c5;
+  background: #f2eaff;
+}
+
+.cv-dropzone h3 {
+  margin: 0;
+  color: #241747;
+  font-size: 18px;
+}
+
+.cv-dropzone p {
+  margin: 0;
+  color: #81779b;
+  font-size: 13px;
+}
+
+.cv-dropzone button {
+  margin-top: 8px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  background: #7135c5;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cv-dropzone > span {
+  color: #81779b;
+  font-size: 12px;
+}
+
+.cv-upload-error {
+  color: #c62845 !important;
+}
+
+.cv-selected-file {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid #eee8f5;
+  border-radius: 14px;
+  text-align: left;
+  color: #7135c5;
+}
+
+.cv-selected-file > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.cv-selected-file strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #241747;
+  font-size: 13px;
+}
+
+.cv-selected-file p {
+  margin: 5px 0 0;
+  color: #81779b;
+  font-size: 12px;
+}
+
+.cv-selected-file button {
+  border: none;
+  background: transparent;
+  color: #81779b;
+  cursor: pointer;
+}
+
+.cv-continue-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #a13ad9, #7135c5);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cv-continue-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .create-cv-panel {
+    padding: 20px;
+  }
+
+  .cv-start-options {
+    grid-template-columns: 1fr;
+  }
+
+  .cv-option-card {
+    min-height: 210px;
+  }
+
+  .cv-dropzone {
+    padding: 32px 15px;
+  }
+}
