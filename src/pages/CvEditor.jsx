@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save, Printer, Sparkles } from "lucide-react";
 
 import Sidebar from "../components/dashboard/Sidebar";
+import AISuggestions from "../components/ai/AISuggestions";
 
 import "../styles/dashboard.css";
 import "../styles/cv-editor.css";
@@ -42,7 +43,9 @@ export default function CVEditor() {
       return { ...emptyForm };
     }
 
-    const resume = getSavedResumes().find((item) => item.id === id);
+    const resume = getSavedResumes().find(
+      (item) => String(item.id) === String(id),
+    );
 
     return resume ? { ...emptyForm, ...resume.data } : { ...emptyForm };
   });
@@ -60,6 +63,16 @@ export default function CVEditor() {
     setSaved(false);
   }
 
+  // Apply a suggestion to the resume form
+  function handleApplySuggestion(field, value) {
+    setForm((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+
+    setSaved(false);
+  }
+
   function handleSave() {
     if (!form.fullName.trim()) {
       alert("Please enter your full name.");
@@ -69,7 +82,7 @@ export default function CVEditor() {
     const existing = getSavedResumes();
 
     const previousResume = isEditing
-      ? existing.find((item) => item.id === id)
+      ? existing.find((item) => String(item.id) === String(id))
       : null;
 
     if (isEditing && !previousResume) {
@@ -79,9 +92,11 @@ export default function CVEditor() {
 
     const resume = {
       id: isEditing ? id : crypto.randomUUID(),
+
       title: form.jobTitle.trim()
         ? `${form.jobTitle.trim()} CV`
         : `${form.fullName.trim()} CV`,
+
       status: "Completed",
       updatedAt: new Date().toISOString().slice(0, 10),
       data: form,
@@ -89,7 +104,9 @@ export default function CVEditor() {
 
     const updatedResumes = isEditing
       ? existing.map((item) =>
-          item.id === id ? { ...previousResume, ...resume } : item,
+          String(item.id) === String(id)
+            ? { ...previousResume, ...resume }
+            : item,
         )
       : [resume, ...existing];
 
@@ -124,7 +141,6 @@ export default function CVEditor() {
 
   return (
     <div className="dashboard-layout cv-editor-layout">
-      {/* Horizontal Sidebar */}
       <Sidebar />
 
       <main className="dashboard-main cv-editor-main">
@@ -162,6 +178,8 @@ export default function CVEditor() {
             </p>
           )}
         </header>
+        {/* AI Suggestions */}
+        <AISuggestions form={form} onApply={handleApplySuggestion} />
 
         <div className="cv-editor-grid">
           {/* Form */}

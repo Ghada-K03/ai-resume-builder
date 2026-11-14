@@ -43,7 +43,7 @@
   border: 0;
   border-radius: 11px;
   background: #7135c5;
-  color: white;
+  color: #ffffff;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -54,7 +54,7 @@
 }
 
 .cv-saved-message {
-  color: #24834b !important;
+  color: #24834b;
   font-weight: 600;
 }
 
@@ -71,7 +71,7 @@
   padding: 25px;
   border: 1px solid #eee8f5;
   border-radius: 20px;
-  background: white;
+  background: #ffffff;
 }
 
 .cv-editor-form h2 {
@@ -95,6 +95,7 @@
 
 .cv-field input,
 .cv-field textarea {
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
   padding: 13px 15px;
@@ -125,34 +126,40 @@
   font-weight: 700;
 }
 
+/* Resume Document - Black and White */
+
 .cv-paper {
+  box-sizing: border-box;
   min-height: 560px;
   padding: 30px;
-  border: 1px solid #e7e0f0;
+  border: 1px solid #dddddd;
   background: #ffffff;
-  color: #241747;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
   overflow-wrap: anywhere;
 }
 
 .cv-paper-header {
   padding-bottom: 20px;
-  border-bottom: 2px solid #7135c5;
+  border-bottom: 1px solid #000000;
 }
 
 .cv-paper-header h2 {
   margin: 0 0 8px;
+  color: #000000;
   font-size: 26px;
 }
 
 .cv-paper-header h3 {
   margin: 0 0 10px;
-  color: #7135c5;
+  color: #000000;
   font-size: 15px;
 }
 
 .cv-paper-header p {
+  margin: 0;
+  color: #000000;
   font-size: 11px;
-  color: #81779b;
 }
 
 .cv-paper-section {
@@ -162,13 +169,14 @@
 .cv-paper-section h4 {
   margin: 0 0 10px;
   padding-bottom: 6px;
-  border-bottom: 1px solid #e7e0f0;
-  color: #7135c5;
+  border-bottom: 1px solid #000000;
+  color: #000000;
   font-size: 14px;
 }
 
 .cv-paper-section p {
   margin: 0;
+  color: #000000;
   white-space: pre-wrap;
   line-height: 1.7;
   font-size: 12px;
@@ -181,12 +189,19 @@
 }
 
 .cv-paper-skills span {
-  padding: 6px 9px;
-  border-radius: 7px;
-  background: #f2eaff;
-  color: #7135c5;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #000000;
   font-size: 11px;
 }
+
+.cv-paper-skills span:not(:last-child)::after {
+  content: ",";
+}
+
+/* Responsive */
 
 @media (max-width: 1000px) {
   .cv-editor-grid {
@@ -205,7 +220,7 @@
   }
 }
 
-/* Print only the resume */
+/* Print Resume Only */
 
 @media print {
   @page {
@@ -214,13 +229,14 @@
   }
 
   body {
-    background: white !important;
+    background: #ffffff !important;
   }
 
-  .cv-editor-sidebar,
+  .dashboard-sidebar,
   .cv-editor-header,
   .cv-editor-form,
-  .cv-preview-label {
+  .cv-preview-label,
+  .ai-suggestions {
     display: none !important;
   }
 
@@ -230,26 +246,22 @@
   .cv-preview-panel {
     display: block !important;
     width: 100% !important;
+    min-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
     border: none !important;
     box-shadow: none !important;
-    background: white !important;
+    background: #ffffff !important;
   }
 
   .cv-paper {
     min-height: 0;
     padding: 0;
     border: none;
+    box-shadow: none;
   }
 
   .cv-paper-section {
     break-inside: avoid;
-  }
-
-  .cv-paper-header,
-  .cv-paper-section h4 {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
   }
 }
