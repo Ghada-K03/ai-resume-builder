@@ -27,7 +27,7 @@ const initialResumes = [
   },
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ resumesOnly = false }) {
   const navigate = useNavigate();
 
   const [resumes, setResumes] = useState(() => {
@@ -82,7 +82,7 @@ export default function Dashboard() {
   }
 
   function handleEdit(id) {
-    navigate(`/edit-cv/${id}`);
+    navigate(`/cv/${id}/edit`);
   }
 
   return (
@@ -90,16 +90,33 @@ export default function Dashboard() {
       <Sidebar />
 
       <main className="dashboard-main">
-        <DashboardHeader search={search} onSearchChange={setSearch} />
+        {!resumesOnly && (
+          <>
+            <DashboardHeader search={search} onSearchChange={setSearch} />
 
-        <WelcomeBanner onCreate={handleCreate} />
+            <WelcomeBanner onCreate={handleCreate} />
 
-        <DashboardStats
-          total={resumes.length}
-          completed={completed}
-          drafts={drafts}
-        />
+            <DashboardStats
+              total={resumes.length}
+              completed={completed}
+              drafts={drafts}
+            />
+          </>
+        )}
 
+        {resumesOnly && (
+          <div className="resumes-page-header">
+            <h1>My Resumes</h1>
+            <p>Manage, view and edit your saved resumes.</p>
+
+            <input
+              type="search"
+              placeholder="Search resumes..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+        )}
         <section className="dashboard-resumes">
           <div className="resumes-section-heading">
             <div>
@@ -107,13 +124,20 @@ export default function Dashboard() {
               <p>Your professional resumes in one place.</p>
             </div>
 
-            <button
+            {/* <button
               type="button"
               className="dashboard-add-btn"
               onClick={handleCreate}
             >
               <Plus size={18} />
               New CV
+            </button>  */}
+            <button
+              type="button"
+              className="dashboard-add-btn"
+              onClick={() => navigate("/dashboard/resumes")}
+            >
+              All Resumes
             </button>
           </div>
 

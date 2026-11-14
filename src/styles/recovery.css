@@ -342,9 +342,7 @@
   }
 }
 
-/* =====================================
-   MOBILE
-===================================== */
+/* MOBILE */
 
 @media (max-width: 800px) {
   .auth-page:has(.recovery-card) {
@@ -381,6 +379,7 @@
 
   .recovery-card .hero-message h2 {
     font-size: 28px;
+    margin: 0;
   }
 
   .recovery-content {

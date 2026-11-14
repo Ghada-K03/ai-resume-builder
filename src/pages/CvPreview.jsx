@@ -9,7 +9,6 @@ import "../styles/cv-preview.css";
 
 const STORAGE_KEY = "ai-resume-builder-resumes";
 
-// Get saved resumes from localStorage
 function getSavedResumes() {
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -26,21 +25,26 @@ export default function CvPreview() {
 
   const resumes = getSavedResumes();
 
-  const resume = resumes.find((item) => item.id === id);
+  const resume = resumes.find((item) => String(item.id) === String(id));
 
-  // Resume not found
   if (!resume) {
     return (
-      <div className="preview-not-found">
-        <FileWarning size={48} />
+      <div className="dashboard-layout cv-preview-layout">
+        <Sidebar />
 
-        <h2>Resume Not Found</h2>
+        <main className="dashboard-main cv-preview-main">
+          <div className="preview-not-found">
+            <FileWarning size={48} />
 
-        <p>This resume may have been deleted or does not exist.</p>
+            <h2>Resume Not Found</h2>
 
-        <button type="button" onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </button>
+            <p>This resume may have been deleted or does not exist.</p>
+
+            <button type="button" onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
@@ -76,13 +80,10 @@ export default function CvPreview() {
 
   return (
     <div className="dashboard-layout cv-preview-layout">
-      <div className="cv-preview-sidebar">
-        <Sidebar />
-      </div>
+      <Sidebar />
 
       <main className="dashboard-main cv-preview-main">
         {/* Toolbar */}
-
         <div className="cv-preview-toolbar">
           <button
             type="button"
@@ -103,16 +104,14 @@ export default function CvPreview() {
           </button>
         </div>
 
-        {/* Page Heading */}
-
+        {/* Heading */}
         <div className="preview-heading">
           <h1>Resume Preview</h1>
 
           <p>Review your professional resume before downloading.</p>
         </div>
 
-        {/* Resume Document */}
-
+        {/* ATS Resume */}
         <article className="cv-paper cv-preview-document">
           <header className="cv-paper-header">
             <h2>{data.fullName || "Your Name"}</h2>
@@ -127,7 +126,6 @@ export default function CvPreview() {
           </header>
 
           {/* Resume Sections */}
-
           {sections.map((section) => {
             if (typeof section.value !== "string" || !section.value.trim()) {
               return null;
@@ -143,7 +141,6 @@ export default function CvPreview() {
           })}
 
           {/* Skills */}
-
           {skills.length > 0 && (
             <section className="cv-paper-section">
               <h4>Skills</h4>
