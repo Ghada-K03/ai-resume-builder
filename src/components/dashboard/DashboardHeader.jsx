@@ -1,6 +1,7 @@
 import { Search, CircleUserRound } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 export default function DashboardHeader({ search, onSearchChange }) {
+  const navigate = useNavigate();
   return (
     <header className="dashboard-header">
       <div className="dashboard-header-title">
@@ -21,9 +22,14 @@ export default function DashboardHeader({ search, onSearchChange }) {
           />
         </label>
 
-        <div className="dashboard-avatar">
+        <button
+          type="button"
+          className="dashboard-avatar"
+          onClick={() => navigate("/profile")}
+          aria-label="Open Profile"
+        >
           <CircleUserRound size={30} />
-        </div>
+        </button>
       </div>
     </header>
   );

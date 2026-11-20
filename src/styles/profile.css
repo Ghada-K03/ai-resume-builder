@@ -1,0 +1,139 @@
+.profile-heading {
+  margin-bottom: 28px;
+}
+
+.profile-heading h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  color: #241747;
+}
+
+.profile-heading p {
+  margin: 0;
+  color: #81779b;
+  font-size: 14px;
+}
+
+.profile-card {
+  max-width: 850px;
+  background: #fff;
+  border: 1px solid #eee8f5;
+  border-radius: 22px;
+  padding: 30px;
+  box-shadow: 0 8px 28px rgba(36, 23, 71, 0.04);
+}
+
+.profile-tabs {
+  display: flex;
+  gap: 12px;
+  border-bottom: 1px solid #eee8f5;
+  margin-bottom: 30px;
+}
+
+.profile-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 16px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #81779b;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.profile-tabs button.active {
+  color: #7135c5;
+  border-bottom-color: #7135c5;
+  font-weight: 600;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-form h2 {
+  margin: 0;
+  color: #241747;
+  font-size: 21px;
+}
+
+.profile-form > p {
+  margin: -12px 0 8px;
+  color: #81779b;
+  font-size: 14px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.profile-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #30205d;
+}
+
+.profile-field input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e7e0f0;
+  border-radius: 12px;
+  background: #fff;
+  color: #241747;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.profile-field input:focus {
+  outline: 2px solid #c6a5f3;
+  border-color: #7135c5;
+}
+
+.profile-submit {
+  align-self: flex-start;
+  padding: 13px 25px;
+  border: none;
+  border-radius: 12px;
+  background: #7135c5;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 20px 16px;
+  }
+
+  .profile-heading h1 {
+    font-size: 25px;
+  }
+
+  .profile-tabs {
+    gap: 4px;
+  }
+
+  .profile-tabs button {
+    flex: 1;
+    justify-content: center;
+    padding: 12px 6px;
+    font-size: 12px;
+  }
+
+  .profile-submit {
+    width: 100%;
+  }
+}

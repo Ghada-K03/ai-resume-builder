@@ -3,16 +3,57 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaApple } from "react-icons/fa";
+
+import { loginUser } from "../../api/authService";
+
 export default function SignInForm({ onSignUp }) {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
-  function submit(event) {
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit(event) {
     event.preventDefault();
-    sessionStorage.setItem("demo-session", "yes");
-    navigate("/dashboard");
+
+    if (loading) return;
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await loginUser(email, password);
+
+      // Verify the token location using Swagger.
+      const token =
+        result?.data?.token ??
+        result?.data?.access_token ??
+        result?.token ??
+        result?.access_token;
+
+      if (!token || typeof token !== "string") {
+        throw new Error("Login succeeded, but no access token was found.");
+      }
+
+      // Temporary session storage for development.
+      sessionStorage.setItem("cv-access-token", token);
+
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to sign in. Please try again.";
+
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   }
+
   return (
     <div className="auth-form">
       <div className="auth-form-top">
@@ -21,10 +62,13 @@ export default function SignInForm({ onSignUp }) {
           Sign Up
         </button>
       </div>
+
       <h1>Sign In</h1>
+
       <p className="auth-subtitle">
         Welcome back! Enter your details to continue.
       </p>
+
       <form className="auth-fields" onSubmit={submit}>
         <label className="auth-input-group">
           <Mail size={19} />
@@ -38,6 +82,7 @@ export default function SignInForm({ onSignUp }) {
             required
           />
         </label>
+
         <label className="auth-input-group">
           <LockKeyhole size={19} />
           <input
@@ -49,15 +94,17 @@ export default function SignInForm({ onSignUp }) {
             autoComplete="current-password"
             required
           />
+
           <button
             className="password-toggle"
             type="button"
             aria-label={show ? "Hide password" : "Show password"}
-            onClick={() => setShow(!show)}
+            onClick={() => setShow((prev) => !prev)}
           >
             {show ? <Eye size={19} /> : <EyeOff size={19} />}
           </button>
         </label>
+
         <button
           className="forgot-password"
           type="button"
@@ -65,10 +112,18 @@ export default function SignInForm({ onSignUp }) {
         >
           Forgot Password?
         </button>
-        <button className="auth-submit" type="submit">
-          Sign In
+
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
+
+        <button className="auth-submit" type="submit" disabled={loading}>
+          {loading ? "Signing In..." : "Sign In"}
         </button>
       </form>
+
       <div className="auth-divider">
         <span>Or continue with</span>
       </div>

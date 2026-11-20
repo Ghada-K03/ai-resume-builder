@@ -1,12 +1,15 @@
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Save, Printer, Sparkles } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { ArrowLeft, Save, Printer } from "lucide-react";
 
 import Sidebar from "../components/dashboard/Sidebar";
 import AISuggestions from "../components/ai/AISuggestions";
 
 import "../styles/dashboard.css";
 import "../styles/cv-editor.css";
+
+import { generateResumePDF } from "../utils/generateResumePDF";
+import { updateResumeAPI, analyzeResumeAPI } from "../api/resumeService";
 
 const STORAGE_KEY = "ai-resume-builder-resumes";
 
@@ -31,16 +34,79 @@ function getSavedResumes() {
     return [];
   }
 }
+function mapProfileToForm(profile) {
+  if (!profile) {
+    return { ...emptyForm };
+  }
+
+  return {
+    fullName: profile.full_name ?? profile.fullName ?? "",
+    email: profile.email ?? "",
+    phone: profile.phone ?? "",
+    location: profile.location ?? "",
+    jobTitle: profile.job_title ?? profile.jobTitle ?? "",
+    summary: profile.professional_summary ?? profile.summary ?? "",
+
+    skills: Array.isArray(profile.skills)
+      ? profile.skills.join(", ")
+      : (profile.skills ?? ""),
+
+    education: Array.isArray(profile.education)
+      ? profile.education
+          .map((item) => {
+            if (typeof item === "string") return item;
+
+            return [
+              item.degree,
+              item.institution,
+              item.field_of_study,
+              item.start_date,
+              item.end_date,
+              item.description,
+            ]
+              .filter(Boolean)
+              .join(" - ");
+          })
+          .join("\n")
+      : (profile.education ?? ""),
+
+    experience: Array.isArray(profile.experience)
+      ? profile.experience
+          .map((item) => {
+            if (typeof item === "string") return item;
+
+            return [
+              item.job_title ?? item.title,
+              item.company,
+              item.start_date,
+              item.end_date,
+              item.description,
+            ]
+              .filter(Boolean)
+              .join(" - ");
+          })
+          .join("\n")
+      : (profile.experience ?? ""),
+  };
+}
 
 export default function CVEditor() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
 
+  const analyzedProfile = location.state?.analyzedProfile;
   const isEditing = Boolean(id);
+  const backendResumeId = location.state?.resumeId || id;
+
+  const [isLoadingResume, setIsLoadingResume] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   const [form, setForm] = useState(() => {
     if (!id) {
-      return { ...emptyForm };
+      return analyzedProfile
+        ? mapProfileToForm(analyzedProfile)
+        : { ...emptyForm };
     }
 
     const resume = getSavedResumes().find(
@@ -51,6 +117,72 @@ export default function CVEditor() {
   });
 
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [isResumeReady, setIsResumeReady] = useState(() => {
+    if (!id) return Boolean(analyzedProfile);
+
+    return getSavedResumes().some(
+      (resume) => String(resume.id) === String(id) && Boolean(resume.data),
+    );
+  });
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const savedResume = getSavedResumes().find(
+      (item) => String(item.id) === String(id),
+    );
+
+    // If editor data exists locally, keep it.
+    if (savedResume?.data) {
+      setIsResumeReady(true);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadResume() {
+      setIsLoadingResume(true);
+      setIsResumeReady(false);
+      setLoadError("");
+
+      try {
+        const response = await analyzeResumeAPI(id);
+
+        console.log("Edit CV analysis response:", response);
+
+        if (cancelled) return;
+
+        const profile = response.data?.profile_draft;
+
+        if (!profile) {
+          throw new Error("Profile data not found.");
+        }
+
+        setForm(mapProfileToForm(profile));
+        setIsResumeReady(true);
+      } catch (error) {
+        if (cancelled) return;
+
+        console.error("Failed to load CV:", error);
+        setLoadError("Could not load resume data.");
+        setIsResumeReady(false);
+      } finally {
+        if (!cancelled) {
+          setIsLoadingResume(false);
+        }
+      }
+    }
+
+    loadResume();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, isEditing]);
+
+  console.log("Backend Resume ID:", backendResumeId);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -63,67 +195,87 @@ export default function CVEditor() {
     setSaved(false);
   }
 
-  // Apply a suggestion to the resume form
-  function handleApplySuggestion(field, value) {
-    setForm((previous) => ({
-      ...previous,
-      [field]: value,
-    }));
+  async function handleSave() {
+    if (isSaving || isLoadingResume) return;
 
-    setSaved(false);
-  }
-
-  function handleSave() {
     if (!form.fullName.trim()) {
       alert("Please enter your full name.");
       return;
     }
 
-    const existing = getSavedResumes();
-
-    const previousResume = isEditing
-      ? existing.find((item) => String(item.id) === String(id))
-      : null;
-
-    if (isEditing && !previousResume) {
-      alert("Resume not found.");
+    if (isEditing && !isResumeReady) {
+      alert("Please wait until the resume data is loaded.");
       return;
     }
 
-    const resume = {
-      id: isEditing ? id : crypto.randomUUID(),
+    if (!backendResumeId) {
+      alert("Resume ID is missing. Cannot save to server.");
+      return;
+    }
 
-      title: form.jobTitle.trim()
-        ? `${form.jobTitle.trim()} CV`
-        : `${form.fullName.trim()} CV`,
+    const title = form.jobTitle.trim()
+      ? `${form.jobTitle.trim()} CV`
+      : `${form.fullName.trim()} CV`;
 
-      status: "Completed",
-      updatedAt: new Date().toISOString().slice(0, 10),
-      data: form,
-    };
-
-    const updatedResumes = isEditing
-      ? existing.map((item) =>
-          String(item.id) === String(id)
-            ? { ...previousResume, ...resume }
-            : item,
-        )
-      : [resume, ...existing];
+    setIsSaving(true);
+    setSaved(false);
 
     try {
+      const pdfBlob = generateResumePDF(form);
+
+      await updateResumeAPI(backendResumeId, title, pdfBlob);
+
+      const existing = getSavedResumes();
+
+      const resume = {
+        id: backendResumeId,
+        title,
+
+        updatedAt: new Date().toISOString().slice(0, 10),
+        data: form,
+      };
+
+      const updatedResumes = [
+        resume,
+        ...existing.filter(
+          (item) => String(item.id) !== String(backendResumeId),
+        ),
+      ];
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedResumes));
 
       setSaved(true);
+      alert("Resume saved successfully!");
       navigate("/dashboard");
-    } catch {
-      alert("Could not save your resume.");
+    } catch (error) {
+      console.error("Save CV failed:", error);
+      alert("Could not save your resume. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   }
+  const fieldRefs = useRef({});
+  const [activeHint, setActiveHint] = useState(null);
 
-  function handlePrint() {
-    window.print();
+  function handleNavigateToField(field, recommendation) {
+    const element = fieldRefs.current[field];
+
+    if (!element) return;
+
+    setActiveHint({
+      field,
+      message:
+        recommendation ||
+        "Review this field and update it based on the AI recommendation.",
+    });
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    element.focus({ preventScroll: true });
   }
-
   const fields = [
     ["fullName", "Full Name", "text"],
     ["email", "Email Address", "email"],
@@ -138,6 +290,24 @@ export default function CVEditor() {
     ["experience", "Work Experience"],
     ["skills", "Skills (separate with commas)"],
   ];
+
+  function handleExportPDF() {
+    try {
+      const pdfBlob = generateResumePDF(form);
+
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "resume.pdf";
+      link.click();
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("Could not generate PDF.");
+    }
+  }
 
   return (
     <div className="dashboard-layout cv-editor-layout">
@@ -157,16 +327,26 @@ export default function CVEditor() {
           <div>
             <h1>{isEditing ? "Edit Resume" : "Resume Editor"}</h1>
 
-            <p>Build and preview your professional resume.</p>
+            <p>Review and edit your professional resume.</p>
           </div>
 
           <div className="cv-editor-actions">
-            <button type="button" onClick={handleSave}>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={
+                isSaving || isLoadingResume || (isEditing && !isResumeReady)
+              }
+            >
               <Save size={17} />
-              {isEditing ? "Save Changes" : "Save CV"}
+              {isSaving ? "Saving..." : isEditing ? "Save Changes" : "Save CV"}
             </button>
 
-            <button type="button" onClick={handlePrint}>
+            <button
+              type="button"
+              onClick={handleExportPDF}
+              title="Export CV as PDF"
+            >
               <Printer size={17} />
               Export PDF
             </button>
@@ -177,12 +357,21 @@ export default function CVEditor() {
               Resume saved successfully!
             </p>
           )}
+
+          {isLoadingResume && <p role="status">Loading resume data...</p>}
+
+          {loadError && <p role="alert">{loadError}</p>}
         </header>
-        {/* AI Suggestions */}
-        <AISuggestions form={form} onApply={handleApplySuggestion} />
+
+        {/* AI Recommendations */}
+        <AISuggestions
+          form={form}
+          resumeId={backendResumeId}
+          onNavigateToField={handleNavigateToField}
+        />
 
         <div className="cv-editor-grid">
-          {/* Form */}
+          {/* Resume Form */}
           <section className="cv-editor-form">
             <h2>Your Information</h2>
 
@@ -205,65 +394,23 @@ export default function CVEditor() {
                 <span>{label}</span>
 
                 <textarea
+                  ref={(element) => {
+                    fieldRefs.current[name] = element;
+                  }}
                   name={name}
                   value={form[name]}
                   onChange={handleChange}
                   rows={name === "summary" ? 3 : 4}
                   placeholder={`Enter ${label.toLowerCase()}`}
                 />
+
+                {activeHint?.field === name && (
+                  <small className="cv-ai-hint">
+                    AI Tip: {activeHint.message}
+                  </small>
+                )}
               </label>
             ))}
-          </section>
-
-          {/* Live Preview */}
-          <section className="cv-preview-panel">
-            <div className="cv-preview-label">
-              <Sparkles size={17} />
-              Live Preview
-            </div>
-
-            <article className="cv-paper">
-              <header className="cv-paper-header">
-                <h2>{form.fullName || "Your Name"}</h2>
-
-                <h3>{form.jobTitle || "Professional Title"}</h3>
-
-                <p>
-                  {[form.email, form.phone, form.location]
-                    .filter(Boolean)
-                    .join(" | ")}
-                </p>
-              </header>
-
-              {[
-                ["Professional Summary", form.summary],
-                ["Education", form.education],
-                ["Work Experience", form.experience],
-              ].map(([title, value]) =>
-                value.trim() ? (
-                  <section className="cv-paper-section" key={title}>
-                    <h4>{title}</h4>
-                    <p>{value}</p>
-                  </section>
-                ) : null,
-              )}
-
-              {form.skills.trim() && (
-                <section className="cv-paper-section">
-                  <h4>Skills</h4>
-
-                  <div className="cv-paper-skills">
-                    {form.skills
-                      .split(",")
-                      .map((skill) => skill.trim())
-                      .filter(Boolean)
-                      .map((skill, index) => (
-                        <span key={`${skill}-${index}`}>{skill}</span>
-                      ))}
-                  </div>
-                </section>
-              )}
-            </article>
           </section>
         </div>
       </main>

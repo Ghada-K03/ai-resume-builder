@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/cv/:path*",
+      "destination": "https://smart-store.devamer.online/cv/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

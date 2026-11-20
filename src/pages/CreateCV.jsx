@@ -3,29 +3,46 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Sparkles } from "lucide-react";
 
 import Sidebar from "../components/dashboard/Sidebar";
-import CVStartOptions from "../components/cv/CvStartOptions";
 import CVUpload from "../components/cv/CvUpload";
+import { analyzeResumeAPI } from "../api/resumeService";
 
-import "../styles/dashboard.css";
 import "../styles/create-cv.css";
 
 export default function CreateCV() {
   const navigate = useNavigate();
-  const [step, setStep] = useState("options");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSelect(option) {
-    if (option === "upload") {
-      setStep("upload");
-    } else {
-      navigate("/cv-editor");
+  async function handleContinue(resumeId) {
+    if (analyzing) return;
+
+    setAnalyzing(true);
+    setError("");
+
+    try {
+      const response = await analyzeResumeAPI(resumeId);
+
+      const profile = response.data?.profile_draft ?? response.profile_draft;
+
+      if (!profile) {
+        throw new Error("No CV information was extracted.");
+      }
+
+      navigate("/cv-editor", {
+        state: {
+          resumeId,
+          analyzedProfile: profile,
+        },
+      });
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to analyze your CV.",
+      );
+    } finally {
+      setAnalyzing(false);
     }
-  }
-
-  function handleContinue(file) {
-    // The actual file will be processed in the next stage.
-    // Do not store File objects in localStorage.
-    console.log("Selected CV:", file.name);
-    navigate("/cv-editor");
   }
 
   return (
@@ -34,12 +51,7 @@ export default function CreateCV() {
 
       <main className="dashboard-main">
         <div className="create-cv-header">
-          <button
-            type="button"
-            onClick={() =>
-              step === "options" ? navigate("/dashboard") : setStep("options")
-            }
-          >
+          <button type="button" onClick={() => navigate("/dashboard")}>
             <ArrowLeft size={20} />
             Back
           </button>
@@ -50,17 +62,17 @@ export default function CreateCV() {
               AI Resume Builder
             </span>
 
-            <h1>Create Your Resume</h1>
-            <p>Build a resume that helps you stand out.</p>
+            <h1>Upload Your Resume</h1>
+            <p>Upload your existing CV and let AI extract your information.</p>
           </div>
         </div>
 
         <section className="create-cv-panel">
-          {step === "options" ? (
-            <CVStartOptions onSelect={handleSelect} />
-          ) : (
-            <CVUpload onContinue={handleContinue} />
-          )}
+          <CVUpload onContinue={handleContinue} />
+
+          {analyzing && <p role="status">Analyzing your CV, please wait...</p>}
+
+          {error && <p role="alert">{error}</p>}
         </section>
       </main>
     </div>

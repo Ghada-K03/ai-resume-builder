@@ -1,27 +1,40 @@
-import { Check, X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 
 export default function SuggestionCard({ suggestion, onApply, onDismiss }) {
   return (
     <article className="ai-suggestion-card">
-      <h3>{suggestion.title}</h3>
+      <div className="ai-suggestion-top">
+        <h3>
+          <button
+            type="button"
+            className="ai-suggestion-title-btn"
+            onClick={() => onApply(suggestion)}
+          >
+            {suggestion.title}
+          </button>
+        </h3>
+
+        <span className={`ai-priority ai-priority-${suggestion.priority}`}>
+          {suggestion.priority} priority
+        </span>
+      </div>
 
       <p>{suggestion.description}</p>
 
-      {suggestion.suggestedText && (
-        <div className="ai-suggested-text">{suggestion.suggestedText}</div>
-      )}
+      <div className="ai-suggested-text">
+        <strong>Recommendation:</strong>
+        <p>{suggestion.recommendation}</p>
+      </div>
 
       <div className="ai-suggestion-actions">
-        {suggestion.suggestedText && (
-          <button
-            type="button"
-            className="ai-apply-btn"
-            onClick={() => onApply(suggestion)}
-          >
-            <Check size={16} />
-            Apply Suggestion
-          </button>
-        )}
+        <button
+          type="button"
+          className="ai-apply-btn"
+          onClick={() => onApply(suggestion)}
+        >
+          <ArrowRight size={16} />
+          Go to Field
+        </button>
 
         <button
           type="button"

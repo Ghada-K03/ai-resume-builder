@@ -1,4 +1,6 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { logoutUser } from "../../api/authService";
 
 import {
   FileText,
@@ -10,6 +12,29 @@ import {
 } from "lucide-react";
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
+  async function handleLogout() {
+    if (loggingOut) return;
+
+    setLoggingOut(true);
+    setLogoutError("");
+
+    try {
+      await logoutUser();
+
+      sessionStorage.removeItem("cv-access-token");
+
+      navigate("/login", { replace: true });
+    } catch (error) {
+      setLogoutError(
+        error.response?.data?.message || "Logout failed. Please try again.",
+      );
+    } finally {
+      setLoggingOut(false);
+    }
+  }
   const menuItems = [
     {
       label: "Dashboard",
@@ -59,10 +84,20 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <NavLink to="/login" className="sidebar-link" aria-label="Sign Out">
+        {logoutError && (
+          <p role="alert" className="recovery-error">
+            {logoutError}
+          </p>
+        )}
+        <button
+          type="button"
+          className="sidebar-link"
+          onClick={handleLogout}
+          aria-label="Sign Out"
+        >
           <LogOut size={20} />
-          <span>Sign Out</span>
-        </NavLink>
+          <span>{loggingOut ? "Signing Out..." : "Sign Out"}</span>
+        </button>
       </div>
     </aside>
   );

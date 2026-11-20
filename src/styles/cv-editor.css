@@ -1,3 +1,7 @@
+/* 
+   CV Editor Layout
+*/
+
 .cv-editor-main {
   min-width: 0;
 }
@@ -28,6 +32,10 @@
   color: #81779b;
 }
 
+/* 
+   Action Buttons
+ */
+
 .cv-editor-actions {
   display: flex;
   flex-wrap: wrap;
@@ -38,6 +46,7 @@
 .cv-editor-actions button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 9px;
   padding: 12px 20px;
   border: 0;
@@ -53,20 +62,34 @@
   background: #241747;
 }
 
+.cv-editor-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .cv-saved-message {
   color: #24834b;
   font-weight: 600;
 }
 
+/* 
+   Editor Grid
+*/
+
 .cv-editor-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 24px;
 }
 
-.cv-editor-form,
-.cv-preview-panel {
+/* 
+   Resume Form
+*/
+
+.cv-editor-form {
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
   padding: 25px;
   border: 1px solid #eee8f5;
@@ -117,19 +140,13 @@
   resize: vertical;
 }
 
-.cv-preview-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  color: #7135c5;
-  font-weight: 700;
-}
-
-/* Resume Document - Black and White */
+/* 
+   CV Document Styles
+ */
 
 .cv-paper {
   box-sizing: border-box;
+  width: 100%;
   min-height: 560px;
   padding: 30px;
   border: 1px solid #dddddd;
@@ -201,18 +218,25 @@
   content: ",";
 }
 
-/* Responsive */
-
-@media (max-width: 1000px) {
-  .cv-editor-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* 
+   Responsive
+*/
 
 @media (max-width: 600px) {
-  .cv-editor-form,
-  .cv-preview-panel {
+  .cv-editor-header h1 {
+    font-size: 25px;
+  }
+
+  .cv-editor-form {
     padding: 16px;
+  }
+
+  .cv-editor-actions {
+    flex-direction: column;
+  }
+
+  .cv-editor-actions button {
+    width: 100%;
   }
 
   .cv-paper {
@@ -220,7 +244,9 @@
   }
 }
 
-/* Print Resume Only */
+/* 
+   Print - Standalone CV
+*/
 
 @media print {
   @page {
@@ -229,28 +255,6 @@
   }
 
   body {
-    background: #ffffff !important;
-  }
-
-  .dashboard-sidebar,
-  .cv-editor-header,
-  .cv-editor-form,
-  .cv-preview-label,
-  .ai-suggestions {
-    display: none !important;
-  }
-
-  .cv-editor-layout,
-  .cv-editor-main,
-  .cv-editor-grid,
-  .cv-preview-panel {
-    display: block !important;
-    width: 100% !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
     background: #ffffff !important;
   }
 
@@ -264,4 +268,20 @@
   .cv-paper-section {
     break-inside: avoid;
   }
+}
+.cv-ai-hint {
+  display: block;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #fff5f7;
+  border-left: 3px solid #e8a0b4;
+  border-radius: 6px;
+  color: #8b4057;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.cv-field textarea:focus {
+  outline: 2px solid #e8a0b4;
+  outline-offset: 2px;
 }

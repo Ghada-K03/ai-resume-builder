@@ -46,9 +46,12 @@
   font: inherit;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: 0.2s ease;
 }
-
+.ai-apply-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
 .ai-analyze-btn:hover,
 .ai-apply-btn:hover {
   background: #5b28a5;
@@ -207,4 +210,184 @@
   color: #ffffff;
   font: inherit;
   cursor: pointer;
+}
+/* AI Results Sections */
+
+.ai-overall-score,
+.ai-strengths,
+.ai-recommended-skills {
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid #eee8f7;
+  border-radius: 16px;
+  background: #fcfaff;
+  min-width: 0;
+}
+
+.ai-overall-score h3,
+.ai-strengths h3,
+.ai-recommended-skills h3 {
+  margin: 0 0 16px;
+  color: #30205d;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* Overall Score */
+
+.ai-score-value {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.ai-score-value strong {
+  color: #7135c5;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.ai-score-value span {
+  color: #8c829d;
+  font-size: 17px;
+}
+
+.ai-overall-score > p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* Strengths */
+
+.ai-strengths ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.ai-strengths li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ai-strengths li svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: #7135c5;
+}
+
+/* Recommended Skills */
+
+.ai-skills-list {
+  display: grid;
+  gap: 12px;
+}
+
+.ai-skill-card {
+  padding: 16px;
+  border: 1px solid #e8def7;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.ai-skill-header,
+.ai-suggestion-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ai-skill-header h4 {
+  margin: 0;
+  color: #30205d;
+  font-size: 14px;
+}
+
+.ai-skill-card p {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Priority Badges */
+
+.ai-priority {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.ai-priority-high {
+  background: #fff0f0;
+  color: #c44545;
+}
+
+.ai-priority-medium {
+  background: #fff5e5;
+  color: #a66a12;
+}
+
+.ai-priority-low {
+  background: #eaf7ef;
+  color: #27834c;
+}
+
+/* Applied State */
+
+.ai-apply-btn:disabled {
+  background: #e9e0f5;
+  color: #7135c5;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  .ai-overall-score,
+  .ai-strengths,
+  .ai-recommended-skills {
+    padding: 16px;
+  }
+
+  .ai-score-value strong {
+    font-size: 32px;
+  }
+
+  .ai-skill-header,
+  .ai-suggestion-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+.ai-suggestion-title-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ai-suggestion-title-btn:hover {
+  text-decoration: underline;
 }

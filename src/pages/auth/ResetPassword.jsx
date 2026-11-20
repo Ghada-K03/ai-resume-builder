@@ -1,28 +1,42 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   LockKeyhole,
   Eye,
   EyeOff,
   ArrowLeft,
   CheckCircle2,
+  LoaderCircle,
 } from "lucide-react";
 
 import AuthLayout from "../auth/AuthLayout";
+import { resetPassword } from "../../api/authService";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const email = searchParams.get("email");
+  const token = searchParams.get("token");
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  function handleSubmit(event) {
+  const invalidLink = !email || !token;
+
+  async function handleSubmit(event) {
     event.preventDefault();
+
+    if (invalidLink) {
+      setError("Invalid reset link. Please request a new one.");
+      return;
+    }
 
     if (password.length < 8) {
       setError("Password must contain at least 8 characters.");
@@ -34,9 +48,28 @@ export default function ResetPassword() {
       return;
     }
 
-    // Demo only: password is not changed.
+    setLoading(true);
     setError("");
-    setSuccess(true);
+
+    try {
+      await resetPassword({
+        email,
+        token,
+        password,
+        password_confirmation: confirmPassword,
+      });
+
+      setSuccess(true);
+      setPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Failed to reset password. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -57,12 +90,13 @@ export default function ResetPassword() {
                 marginRight: 8,
               }}
             />
+            Password reset successfully!
           </p>
 
           <button
             type="button"
             className="auth-submit"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/login", { replace: true })}
           >
             Back to Sign In
           </button>
@@ -89,6 +123,7 @@ export default function ResetPassword() {
                 autoComplete="new-password"
                 minLength={8}
                 required
+                disabled={loading || invalidLink}
               />
 
               <button
@@ -122,9 +157,17 @@ export default function ResetPassword() {
                 autoComplete="new-password"
                 minLength={8}
                 required
+                disabled={loading || invalidLink}
               />
+              {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
             </div>
           </div>
+
+          {invalidLink && (
+            <p className="recovery-error" role="alert">
+              Invalid reset link. Please request a new one.
+            </p>
+          )}
 
           {error && (
             <p className="recovery-error" role="alert">
@@ -132,8 +175,19 @@ export default function ResetPassword() {
             </p>
           )}
 
-          <button type="submit" className="auth-submit">
-            Reset Password
+          <button
+            type="submit"
+            className="auth-submit"
+            disabled={loading || invalidLink}
+          >
+            {loading ? (
+              <>
+                <LoaderCircle size={19} className="auth-spinner" />
+                Resetting...
+              </>
+            ) : (
+              "Reset Password"
+            )}
           </button>
         </form>
       )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 
@@ -7,84 +7,193 @@ import DashboardHeader from "../components/dashboard/DashboardHeader";
 import WelcomeBanner from "../components/dashboard/WelcomeBanner";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import ResumeCard from "../components/dashboard/ResumeCard";
+import {
+  getResumes,
+  deleteResume,
+  getResumeFile,
+  shareResumeAPI,
+  revokeResumeShareAPI,
+} from "../api/resumeService";
 
 import "../styles/dashboard.css";
 
 const STORAGE_KEY = "ai-resume-builder-resumes";
 
-const initialResumes = [
-  {
-    id: "1",
-    title: "Frontend Developer CV",
-    updatedAt: "2026-11-12",
-    status: "Completed",
-  },
-  {
-    id: "2",
-    title: "Software Engineer CV",
-    updatedAt: "2026-11-10",
-    status: "Draft",
-  },
-];
+function isResumeComplete(resume) {
+  let savedData = null;
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+    if (Array.isArray(saved)) {
+      const matchingResume = saved.find(
+        (item) => String(item.id) === String(resume.id),
+      );
+
+      savedData = matchingResume?.data ?? null;
+    }
+  } catch (error) {
+    console.error("Failed to read saved resume:", error);
+  }
+
+  const profile = savedData || resume.profile_draft;
+
+  if (!profile) return false;
+
+  const hasValue = (value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return typeof value === "string" && value.trim().length > 0;
+  };
+
+  return [
+    profile.fullName ?? profile.full_name,
+    profile.email,
+    profile.phone,
+    profile.jobTitle ?? profile.job_title,
+    profile.summary ?? profile.professional_summary,
+    profile.education,
+    profile.experience,
+    profile.skills,
+  ].every(hasValue);
+}
 
 export default function Dashboard({ resumesOnly = false }) {
   const navigate = useNavigate();
 
-  const [resumes, setResumes] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-
-      return saved ? JSON.parse(saved) : initialResumes;
-    } catch {
-      return initialResumes;
-    }
-  });
-
+  const [resumes, setResumes] = useState([]);
   const [search, setSearch] = useState("");
-
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const completed = resumes.filter(
-    (resume) => resume.status === "Completed",
-  ).length;
+  useEffect(() => {
+    async function fetchResumes() {
+      try {
+        const response = await getResumes();
 
-  const drafts = resumes.filter((resume) => resume.status === "Draft").length;
+        setResumes(response.data);
+
+        console.log("Resumes API response:", response);
+        console.log("First resume:", response.data[0]);
+      } catch (error) {
+        console.error("Failed to fetch resumes:", error);
+      }
+    }
+
+    fetchResumes();
+  }, []);
+
+  const completed = resumes.filter(isResumeComplete).length;
+
+  const drafts = resumes.filter((resume) => !isResumeComplete(resume)).length;
 
   const filteredResumes = resumes.filter((resume) =>
     resume.title.toLowerCase().includes(search.toLowerCase().trim()),
   );
 
-  function saveResumes(updated) {
-    setResumes(updated);
-
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch {
-      // Data remains available in component state.
-    }
-  }
-
-  function handleDelete() {
-    if (!deleteTarget) return;
-
-    const updated = resumes.filter((resume) => resume.id !== deleteTarget.id);
-
-    saveResumes(updated);
-    setDeleteTarget(null);
-  }
-
   function handleCreate() {
     navigate("/create-cv");
   }
 
-  function handleView(id) {
-    navigate(`/cv/${id}/preview`);
+  async function handleView(id) {
+    const newTab = window.open("", "_blank");
+
+    try {
+      const file = await getResumeFile(id);
+      const url = URL.createObjectURL(file);
+
+      if (newTab) {
+        newTab.location.href = url;
+      } else {
+        window.open(url, "_blank");
+      }
+
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      if (newTab) newTab.close();
+
+      console.error("Failed to view resume:", error);
+
+      alert("Failed to open resume.");
+    }
   }
 
   function handleEdit(id) {
-    navigate(`/cv/${id}/edit`);
+    navigate(`/cv/${id}/edit`, {
+      state: { resumeId: id },
+    });
   }
 
+  async function handleDownload(id) {
+    try {
+      const file = await getResumeFile(id, true);
+      const url = URL.createObjectURL(file);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `resume-${id}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      console.error("Failed to download resume:", error);
+
+      alert("Failed to download resume.");
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+
+    try {
+      await deleteResume(deleteTarget.id);
+
+      setResumes((prev) =>
+        prev.filter((resume) => resume.id !== deleteTarget.id),
+      );
+
+      setDeleteTarget(null);
+    } catch (error) {
+      console.error("Failed to delete resume:", error);
+      alert("Failed to delete resume. Please try again.");
+    }
+  }
+  async function handleShare(id) {
+    try {
+      const response = await shareResumeAPI(id);
+
+      console.log("Share API response:", response);
+
+      const shareUrl = response.data?.file_url;
+
+      if (!shareUrl) {
+        alert("Share link not found.");
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+
+      alert("Share link copied successfully!");
+    } catch (error) {
+      console.error("Failed to share CV:", error);
+      alert("Could not share this resume.");
+    }
+  }
+
+  async function handleRevokeShare(id) {
+    try {
+      await revokeResumeShareAPI(id);
+      alert("Share link revoked successfully!");
+    } catch (error) {
+      console.error("Failed to revoke share:", error);
+      alert("Could not revoke share link.");
+    }
+  }
   return (
     <div className="dashboard-layout">
       <Sidebar />
@@ -107,6 +216,7 @@ export default function Dashboard({ resumesOnly = false }) {
         {resumesOnly && (
           <div className="resumes-page-header">
             <h1>My Resumes</h1>
+
             <p>Manage, view and edit your saved resumes.</p>
 
             <input
@@ -117,21 +227,15 @@ export default function Dashboard({ resumesOnly = false }) {
             />
           </div>
         )}
+
         <section className="dashboard-resumes">
           <div className="resumes-section-heading">
             <div>
               <h2>My Resumes</h2>
+
               <p>Your professional resumes in one place.</p>
             </div>
 
-            {/* <button
-              type="button"
-              className="dashboard-add-btn"
-              onClick={handleCreate}
-            >
-              <Plus size={18} />
-              New CV
-            </button>  */}
             <button
               type="button"
               className="dashboard-add-btn"
@@ -146,9 +250,16 @@ export default function Dashboard({ resumesOnly = false }) {
               {filteredResumes.map((resume) => (
                 <ResumeCard
                   key={resume.id}
-                  resume={resume}
+                  resume={{
+                    ...resume,
+                    status: isResumeComplete(resume) ? "Completed" : "Draft",
+                    updatedAt: resume.updated_at ?? null,
+                  }}
+                  onShare={handleShare}
+                  onRevokeShare={handleRevokeShare}
                   onView={handleView}
                   onEdit={handleEdit}
+                  onDownload={handleDownload}
                   onDelete={(id) => {
                     const selected = resumes.find((item) => item.id === id);
 
@@ -160,6 +271,7 @@ export default function Dashboard({ resumesOnly = false }) {
           ) : (
             <div className="dashboard-empty">
               <h3>No resumes found</h3>
+
               <p>
                 {search
                   ? "Try a different search term."

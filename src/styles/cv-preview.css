@@ -1,287 +1,86 @@
-/* Preview Layout */
-
-.cv-preview-layout {
-  width: 100%;
+.cv-standalone-page {
+  box-sizing: border-box;
   min-height: 100vh;
+  padding: 40px 20px;
+  background: #f3f3f3;
 }
 
-.cv-preview-main {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Toolbar */
-
-.cv-preview-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 30px;
-}
-
-.preview-back,
-.preview-download {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.preview-back {
+.cv-preview-document {
+  width: 100%;
+  max-width: 794px;
+  min-height: 1123px;
+  margin: 0 auto;
+  padding: 55px;
   background: #ffffff;
-  color: #51239a;
-  border: 1px solid #e7e0f0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
-.preview-download {
-  background: #7135c5;
-  color: #ffffff;
-  border: none;
-}
-
-.preview-back:hover {
-  background: #f2eaff;
-}
-
-.preview-download:hover {
-  background: #51239a;
-}
-
-/* Page Heading */
-
-.preview-heading {
-  margin-bottom: 30px;
-}
-
-.preview-heading h1 {
-  margin: 0 0 10px;
-  font-size: 30px;
-  font-weight: 800;
+.preview-not-found {
+  max-width: 500px;
+  margin: 100px auto;
+  text-align: center;
   color: #241747;
 }
 
-.preview-heading p {
-  margin: 0;
-  font-size: 14px;
-  color: #81779b;
-}
-
-/* ATS Resume Paper */
-
-.cv-preview-document {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 794px;
-  min-height: 900px;
-  margin: 0 auto;
-  padding: 48px;
-  background: #ffffff;
-  border: 1px solid #e5e5e5;
-  border-radius: 4px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  color: #000000;
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-/* Black text inside CV */
-
-.cv-preview-document h2,
-.cv-preview-document h3,
-.cv-preview-document h4,
-.cv-preview-document p,
-.cv-preview-document span {
-  color: #000000;
-}
-
-/* Resume Header */
-
-.cv-preview-document .cv-paper-header {
-  text-align: center;
-  padding-bottom: 20px;
-  margin-bottom: 28px;
-  border-bottom: 1px solid #000000;
-}
-
-.cv-preview-document .cv-paper-header h2 {
-  margin: 0 0 8px;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.cv-preview-document .cv-paper-header h3 {
-  margin: 0 0 10px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.cv-preview-document .cv-paper-header p {
-  margin: 0;
-  font-size: 12px;
-}
-
-/* Resume Sections */
-
-.cv-preview-document .cv-paper-section {
-  margin-bottom: 24px;
-  break-inside: avoid;
-}
-
-.cv-preview-document .cv-paper-section h4 {
-  margin: 0 0 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #cccccc;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.cv-preview-document .cv-paper-section p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-}
-
-/* Skills */
-
-.cv-preview-document .cv-paper-skills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-}
-
-.cv-preview-document .cv-paper-skills span {
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  color: #000000;
-  font-size: 13px;
-}
-
-/* Not Found */
-
-.preview-not-found {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  min-height: 60vh;
-  text-align: center;
+.preview-not-found svg {
   color: #7135c5;
 }
 
-.preview-not-found h2 {
-  margin: 0;
-  color: #241747;
-}
-
-.preview-not-found p {
-  margin: 0;
-  color: #81779b;
-}
-
-.preview-not-found button {
-  padding: 12px 22px;
-  border: none;
-  border-radius: 12px;
-  background: #7135c5;
-  color: #ffffff;
-  font: inherit;
-  cursor: pointer;
-}
-
-/* Responsive */
-
-@media (max-width: 900px) {
-  .cv-preview-main {
-    width: 100%;
-    padding: 0;
+@media (max-width: 600px) {
+  .cv-standalone-page {
+    padding: 12px;
   }
 
   .cv-preview-document {
     min-height: 0;
-    padding: 32px 24px;
+    padding: 24px 18px;
   }
 }
-
-@media (max-width: 480px) {
-  .cv-preview-toolbar {
-    gap: 10px;
-  }
-
-  .preview-back,
-  .preview-download {
-    padding: 10px 12px;
-    font-size: 12px;
-  }
-
-  .preview-heading h1 {
-    font-size: 25px;
-  }
-
-  .cv-preview-document {
-    padding: 24px 16px;
-  }
-
-  .cv-preview-document .cv-paper-header h2 {
-    font-size: 23px;
-  }
-}
-
-/* Print / Save as PDF */
 
 @media print {
-  @page {
-    size: A4;
-    margin: 15mm;
-  }
-
-  body {
-    margin: 0;
+  .cv-standalone-page {
+    min-height: 0;
+    padding: 0;
     background: #ffffff;
   }
 
-  .dashboard-sidebar,
-  .cv-preview-toolbar,
-  .preview-heading {
-    display: none !important;
-  }
-
-  .cv-preview-layout,
-  .cv-preview-main {
-    display: block !important;
-    width: 100% !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background: #ffffff !important;
-  }
-
   .cv-preview-document {
-    width: 100% !important;
-    max-width: none !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: #ffffff !important;
-    color: #000000 !important;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
   }
+}
+.cv-download-toolbar {
+  max-width: 794px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: flex-end;
+}
 
-  .cv-preview-document .cv-paper-section {
-    break-inside: avoid;
+.cv-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #7135c5;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cv-download-btn:hover {
+  background: #5d29a5;
+}
+
+@media print {
+  .cv-download-toolbar {
+    display: none !important;
   }
 }
