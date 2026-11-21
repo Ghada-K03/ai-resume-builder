@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ArrowLeft, Save, Printer } from "lucide-react";
+import toast from "react-hot-toast";
 
 import Sidebar from "../components/dashboard/Sidebar";
 import AISuggestions from "../components/ai/AISuggestions";
@@ -34,6 +35,7 @@ function getSavedResumes() {
     return [];
   }
 }
+
 function mapProfileToForm(profile) {
   if (!profile) {
     return { ...emptyForm };
@@ -116,7 +118,7 @@ export default function CVEditor() {
     return resume ? { ...emptyForm, ...resume.data } : { ...emptyForm };
   });
 
-  const [saved, setSaved] = useState(false);
+  // const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const [isResumeReady, setIsResumeReady] = useState(() => {
@@ -166,8 +168,11 @@ export default function CVEditor() {
         if (cancelled) return;
 
         console.error("Failed to load CV:", error);
+
         setLoadError("Could not load resume data.");
         setIsResumeReady(false);
+
+        toast.error("Could not load resume data.");
       } finally {
         if (!cancelled) {
           setIsLoadingResume(false);
@@ -192,24 +197,24 @@ export default function CVEditor() {
       [name]: value,
     }));
 
-    setSaved(false);
+    // setSaved(false);
   }
 
   async function handleSave() {
     if (isSaving || isLoadingResume) return;
 
     if (!form.fullName.trim()) {
-      alert("Please enter your full name.");
+      toast.error("Please enter your full name.");
       return;
     }
 
     if (isEditing && !isResumeReady) {
-      alert("Please wait until the resume data is loaded.");
+      toast.error("Please wait until the resume data is loaded.");
       return;
     }
 
     if (!backendResumeId) {
-      alert("Resume ID is missing. Cannot save to server.");
+      toast.error("Resume ID is missing. Cannot save to server.");
       return;
     }
 
@@ -218,7 +223,7 @@ export default function CVEditor() {
       : `${form.fullName.trim()} CV`;
 
     setIsSaving(true);
-    setSaved(false);
+    // setSaved(false);
 
     try {
       const pdfBlob = generateResumePDF(form);
@@ -230,7 +235,6 @@ export default function CVEditor() {
       const resume = {
         id: backendResumeId,
         title,
-
         updatedAt: new Date().toISOString().slice(0, 10),
         data: form,
       };
@@ -244,16 +248,20 @@ export default function CVEditor() {
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedResumes));
 
-      setSaved(true);
-      alert("Resume saved successfully!");
+      // setSaved(true);
+
+      toast.success("Resume saved successfully!");
+
       navigate("/dashboard");
     } catch (error) {
       console.error("Save CV failed:", error);
-      alert("Could not save your resume. Please try again.");
+
+      toast.error("Could not save your resume. Please try again.");
     } finally {
       setIsSaving(false);
     }
   }
+
   const fieldRefs = useRef({});
   const [activeHint, setActiveHint] = useState(null);
 
@@ -276,6 +284,7 @@ export default function CVEditor() {
 
     element.focus({ preventScroll: true });
   }
+
   const fields = [
     ["fullName", "Full Name", "text"],
     ["email", "Email Address", "email"],
@@ -303,9 +312,12 @@ export default function CVEditor() {
       link.click();
 
       URL.revokeObjectURL(url);
+
+      toast.success("PDF exported successfully!");
     } catch (error) {
       console.error("PDF generation failed:", error);
-      alert("Could not generate PDF.");
+
+      toast.error("Could not generate PDF.");
     }
   }
 
@@ -351,12 +363,6 @@ export default function CVEditor() {
               Export PDF
             </button>
           </div>
-
-          {saved && (
-            <p className="cv-saved-message" role="status">
-              Resume saved successfully!
-            </p>
-          )}
 
           {isLoadingResume && <p role="status">Loading resume data...</p>}
 

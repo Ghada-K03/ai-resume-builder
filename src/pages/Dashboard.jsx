@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
+import toast from "react-hot-toast";
 
 import Sidebar from "../components/dashboard/Sidebar";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import WelcomeBanner from "../components/dashboard/WelcomeBanner";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import ResumeCard from "../components/dashboard/ResumeCard";
+
 import {
   getResumes,
   deleteResume,
@@ -74,7 +76,6 @@ export default function Dashboard({ resumesOnly = false }) {
 
         setResumes(response.data);
 
-        console.log("Resumes API response:", response);
         console.log("First resume:", response.data[0]);
       } catch (error) {
         console.error("Failed to fetch resumes:", error);
@@ -115,7 +116,7 @@ export default function Dashboard({ resumesOnly = false }) {
 
       console.error("Failed to view resume:", error);
 
-      alert("Failed to open resume.");
+      toast.error("Failed to open resume.");
     }
   }
 
@@ -143,7 +144,7 @@ export default function Dashboard({ resumesOnly = false }) {
     } catch (error) {
       console.error("Failed to download resume:", error);
 
-      alert("Failed to download resume.");
+      toast.error("Failed to download resume.");
     }
   }
 
@@ -158,42 +159,50 @@ export default function Dashboard({ resumesOnly = false }) {
       );
 
       setDeleteTarget(null);
+
+      toast.success("Resume deleted successfully!");
     } catch (error) {
-      console.error("Failed to delete resume:", error);
-      alert("Failed to delete resume. Please try again.");
+      console.error(error);
+
+      toast.error("Failed to delete resume. Please try again.");
     }
   }
+
   async function handleShare(id) {
     try {
       const response = await shareResumeAPI(id);
 
-      console.log("Share API response:", response);
+      console.log(response);
 
       const shareUrl = response.data?.file_url;
 
       if (!shareUrl) {
-        alert("Share link not found.");
+        toast.error("Share link not found.");
         return;
       }
 
       await navigator.clipboard.writeText(shareUrl);
 
-      alert("Share link copied successfully!");
+      toast.success("Share link copied successfully!");
     } catch (error) {
-      console.error("Failed to share CV:", error);
-      alert("Could not share this resume.");
+      console.error(error);
+
+      toast.error("Could not share this resume.");
     }
   }
 
   async function handleRevokeShare(id) {
     try {
       await revokeResumeShareAPI(id);
-      alert("Share link revoked successfully!");
+
+      toast.success("Share link revoked successfully!");
     } catch (error) {
       console.error("Failed to revoke share:", error);
-      alert("Could not revoke share link.");
+
+      toast.error("Could not revoke share link.");
     }
   }
+
   return (
     <div className="dashboard-layout">
       <Sidebar />
